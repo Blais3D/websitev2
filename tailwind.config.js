@@ -1,6 +1,6 @@
 module.exports = {
   content: [
-    './pages/**/*.{html,js,ts,tsx}',,
+    "./pages/_app.tsx",
   ],
   theme: {
     extend: {},
