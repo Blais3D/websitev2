@@ -29,20 +29,14 @@ const MyButton: React.FC<{
 }> = (props) => {
   return (
     <a
-      className="text-[#F5BE9A] hover:text-[#7d1a1d] flex place-content-center place-items-center"
+      className="text-[#F5BE9A] flex place-content-center place-items-center transition 
+      ease-in-out delay-150 hover:text-[#7d1a1d] hover:-translate-y-1 hover:scale-110"
       href={props.link}
+      target="_blank"
     >
       <p className="font-extrabold text-3xl">{props.text}</p>
       <props.icon size={props.size} />
     </a>
-  );
-};
-
-const MyDiv: React.FC<{ inside: any }> = (props) => {
-  return (
-    <div className="bg-[#311415] h-auto w-[90%] rounded-3xl p-5 text-center space-y-5">
-      {props.inside}
-    </div>
   );
 };
 
@@ -61,10 +55,10 @@ function MyApp({ Component, pageProps }: AppProps) {
           </div>
           <img className="w-[100%]" src="/newWave.svg" alt="Nope" />
         </div>
-        <div className="text-center">
+        <div className="text-center p-[2%]">
           <p className="font-extrabold text-5xl text-[#F5BE9A]">Socials</p>
         </div>
-        <div className="p-[5%] flex flex-wrap place-content-center space-x-[2%]">
+        <div className="p-[4%] flex flex-wrap place-content-center space-x-[2%]">
           <MyButton
             icon={FaTwitterSquare}
             link={"https://twitter.com/LinwoodBlais"}
