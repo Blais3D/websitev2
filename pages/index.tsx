@@ -1,16 +1,93 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
-import React from 'react'
-import App from './_app'
+import type { AppProps } from "next/app";
+import {
+  FaTwitterSquare,
+  FaYoutubeSquare,
+  FaGithubSquare,
+  FaDiscord,
+  FaLinkedin,
+} from "react-icons/fa";
+import Link from "next/link";
 
-
-const Home: NextPage = () => {
+const MyButton: React.FC<{
+  icon: any;
+  link: string;
+  size: number;
+  text: string;
+}> = (props) => {
   return (
-    <html className='bg-black'>
-      <body className='bg-black'><h1 className='font-bold'>Hello World!</h1></body>
+    <a
+      className="text-[#F5BE9A] flex place-content-center place-items-center transition 
+      ease-in-out delay-150 hover:text-[#7d1a1d] hover:-translate-y-1 hover:scale-110"
+      href={props.link}
+      target="_blank"
+    >
+      <p className="font-extrabold text-3xl">{props.text}</p>
+      <props.icon size={props.size} />
+    </a>
+  );
+};
+
+const PageButtons: React.FC<{
+  link: string;
+  text: string;
+}> = (props) => {
+  return (
+    <Link href={"/hello_Page"}>
+      <a>Test</a>
+    </Link>
+  );
+};
+
+function MyApp({ Component, pageProps }: AppProps) {
+  return (
+    <html>
+      <head>
+        <title>Welcome!</title>
+      </head>
+      <body>
+        <div className="h-device w-device scrollbar-hide bg-[#190e0e]">
+          <div className="bg-[#F5BE9A] text-center">
+            <div className="text-center place-content-center place-items-center p-10">
+              <p className="font-extrabold text-6xl text-[#190e0e]">
+                Welcome to Blais.gg
+              </p>
+              <PageButtons link={""} text={""} />
+            </div>
+            <img className="w-[100%]" src="/newWave.svg" alt="Nope" />
+          </div>
+          <div className="text-center p-[4%]">
+            <p className="font-extrabold text-5xl text-[#F5BE9A]">Socials</p>
+          </div>
+          <div className="p-[4%] flex flex-wrap place-content-center space-x-[2%]">
+            <MyButton
+              icon={FaTwitterSquare}
+              link={"https://twitter.com/LinwoodBlais"}
+              size={45}
+              text={"Twitter "}
+            />
+            <MyButton
+              icon={FaLinkedin}
+              link={"https://www.linkedin.com/in/linwoodblaisdell/"}
+              size={45}
+              text={"Linked "}
+            />
+            <MyButton
+              icon={FaDiscord}
+              link={"https://discordapp.com/users/Blais#7790"}
+              size={45}
+              text={"Discord "}
+            />
+            <MyButton
+              icon={FaGithubSquare}
+              link={"https://github.com/Blais3D"}
+              size={45}
+              text={"GitHub  "}
+            />
+          </div>
+        </div>
+      </body>
     </html>
-  )
+  );
 }
 
-export default Home
+export default MyApp;
