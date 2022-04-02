@@ -14,17 +14,30 @@ const MyButton: React.FC<{
   size: number;
   text: string;
 }> = (props) => {
-  return (
-    <a
-      className="text-[#F5BE9A] flex place-content-center place-items-center transition 
-      ease-in-out delay-150 hover:text-[#7d1a1d] hover:-translate-y-1 hover:scale-110"
-      href={props.link}
-      target="_blank"
-    >
-      <p className="font-extrabold text-3xl">{props.text}</p>
-      <props.icon size={props.size} />
-    </a>
-  );
+  if (props.icon == null) {
+    return (
+      <a
+        className="text-[#F5BE9A] flex place-content-center place-items-center transition 
+        ease-in-out delay-150 hover:text-[#7d1a1d] hover:-translate-y-1 hover:scale-110"
+        href={props.link}
+        target="_blank"
+      >
+        <p className="font-extrabold text-3xl">{props.text}</p>
+      </a>
+    );
+  } else {
+    return (
+      <a
+        className="text-[#F5BE9A] flex place-content-center place-items-center transition 
+        ease-in-out delay-150 hover:text-[#7d1a1d] hover:-translate-y-1 hover:scale-110"
+        href={props.link}
+        target="_blank"
+      >
+        <p className="font-extrabold text-3xl">{props.text}</p>
+        <props.icon size={props.size} />
+      </a>
+    );
+  }
 };
 
 const PageButtons: React.FC<{
@@ -44,21 +57,20 @@ function MyApp({ Component, pageProps }: AppProps) {
       <head>
         <title>Welcome!</title>
       </head>
-      <body>
-        <div className="h-device w-device scrollbar-hide bg-[#190e0e]">
-          <div className="bg-[#F5BE9A] text-center">
+      <body className="scrollbar-hide">
+        <div className="h-device w-device">
+          <div className="bg-[#F5BE9A] text-center ">
             <div className="text-center place-content-center place-items-center p-10">
               <p className="font-extrabold text-6xl text-[#190e0e]">
                 Welcome to Blais.gg
               </p>
-              <PageButtons link={""} text={""} />
             </div>
             <img className="w-[100%]" src="/newWave.svg" alt="Nope" />
           </div>
-          <div className="text-center p-[4%]">
+          <div className="text-center p-[4%] bg-[#190e0e]">
             <p className="font-extrabold text-5xl text-[#F5BE9A]">Socials</p>
           </div>
-          <div className="p-[4%] flex flex-wrap place-content-center space-x-[2%]">
+          <div className="p-[4%] flex flex-wrap place-content-center space-x-[2%] bg-[#190e0e]">
             <MyButton
               icon={FaTwitterSquare}
               link={"https://twitter.com/LinwoodBlais"}
@@ -83,6 +95,20 @@ function MyApp({ Component, pageProps }: AppProps) {
               size={45}
               text={"GitHub  "}
             />
+          </div>
+          <img className="w-[100%]" src="/waveLower.svg" alt="Nope" />
+          <div className="pb-[3%] w-[100%] bg-[#311415] text-center">
+            <p className="font-extrabold text-5xl text-[#F5BE9A]">Projects</p>
+          </div>
+          <div className="p-[4%] flex flex-wrap place-content-center space-x-[2%] bg-[#311415] text-center">
+            <Link href={"/linwordle"}>
+              <MyButton
+                icon={null}
+                link={"/linwordle"}
+                size={0}
+                text={"Play LinWordle!"}
+              />
+            </Link>
           </div>
         </div>
       </body>
