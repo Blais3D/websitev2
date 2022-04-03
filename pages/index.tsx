@@ -104,7 +104,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             <p className="font-extrabold text-5xl text-[#F5BE9A]">Projects</p>
           </div>
           <div className="p-[4%] flex flex-wrap place-content-center space-x-[2%] bg-[#311415] text-center">
-            <Link href={"/linwordle"}>
+            <Link href={"/linwordle"} passHref={true}>
               <MyButton
                 icon={null}
                 link={"/linwordle"}
