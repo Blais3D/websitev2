@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
@@ -92,6 +93,16 @@ class Game {
 }
 
 const Home: NextPage = () => {
+  var myText: string = "";
+
+  fetch("www.blais.gg/words.txt").then(function (response) {
+    response.text().then(function (text) {
+      myText = text;
+    });
+  });
+
+  const myArray = myText.split("/n");
+
   const [newGame, setNewGame] = useState(new Game("STATE"));
 
   const [enteredText, setEnteredText] = useState("");
@@ -178,6 +189,7 @@ const Home: NextPage = () => {
           <p className="font-extrabold text-6xl text-white">
             {newGame.thisGame}
           </p>
+          <p className="font-extrabold text-6xl text-white">{myText}</p>
         </div>
       </body>
     </html>
