@@ -3,7 +3,7 @@ import Head from "next/head";
 import Image from "next/image";
 import React, { Component, createContext, useState } from "react";
 import { KeyboardEvent } from "react";
-import { myWordsArray } from "./words";
+import myWordsArray from "./words";
 
 enum LetterStatus {
   Not = "#990000",
