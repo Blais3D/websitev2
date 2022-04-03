@@ -7,6 +7,7 @@ import {
   FaLinkedin,
 } from "react-icons/fa";
 import Link from "next/link";
+import Head from "next/head";
 
 const MyButton: React.FC<{
   icon: any;
@@ -54,9 +55,9 @@ const PageButtons: React.FC<{
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <html>
-      <head>
+      <Head>
         <title>Welcome!</title>
-      </head>
+      </Head>
       <body className="scrollbar-hide">
         <div className="h-device w-device">
           <div className="bg-[#F5BE9A] text-center ">
