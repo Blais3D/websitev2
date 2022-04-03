@@ -22,6 +22,7 @@ const MyButton: React.FC<{
         ease-in-out delay-150 hover:text-[#7d1a1d] hover:-translate-y-1 hover:scale-110"
         href={props.link}
         target="_blank"
+        rel="noreferrer"
       >
         <p className="font-extrabold text-3xl">{props.text}</p>
       </a>
@@ -33,6 +34,7 @@ const MyButton: React.FC<{
         ease-in-out delay-150 hover:text-[#7d1a1d] hover:-translate-y-1 hover:scale-110"
         href={props.link}
         target="_blank"
+        rel="noreferrer"
       >
         <p className="font-extrabold text-3xl">{props.text}</p>
         <props.icon size={props.size} />
