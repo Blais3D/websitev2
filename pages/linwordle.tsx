@@ -76,38 +76,13 @@ class Word {
     }
 
     for (var i = 0; i < this.letters.length; i++) {
-      var howmanyInGuess = 0;
-      var howmanyInTheWord = 0;
-      if (
-        this.letters[i].current == LetterStatus.Floating &&
-        theWordsLetters.includes(this.letters[i].character)
-      ) {
-        //first check how many of this letter there are that are not correct
-        for (var j = 0; j < this.letters.length; j++) {
-          if (
-            this.letters[i].character == this.letters[j].character &&
-            this.letters[j].current == LetterStatus.Floating
-          ) {
-            howmanyInGuess++;
-          }
-        }
-        //find how many in word
-        for (var j = 0; j < this.letters.length; j++) {
-          if (theWordsLetters[j] == this.letters[i].character) {
-            howmanyInTheWord++;
-          }
-        }
-        if (howmanyInTheWord - howmanyInGuess >= 0) {
-          for (var j = 0; j < this.letters.length; j++) {
-            if (
-              this.letters[i].character == this.letters[j].character &&
-              this.letters[j].current == LetterStatus.Floating
-            ) {
-              this.letters[j].current = LetterStatus.Somewhere;
-            }
-          }
+      if (this.letters[i].current == LetterStatus.Floating) {
+        if (theWordsLetters.includes(this.letters[i].character)) {
+          this.letters[i].current = LetterStatus.Somewhere;
+          theWordsLetters[theWordsLetters.indexOf(this.letters[i].character)] =
+            ".";
         } else {
-          while (howmanyInTheWord - howmanyInGuess >= 0) {}
+          this.letters[i].current = LetterStatus.Not;
         }
       }
     }
@@ -157,7 +132,7 @@ const Home: NextPage = () => {
   const [theWord, setTheWord] = useState(
     myWordsArray[Math.round(Math.random() * myWordsArray.length)].toUpperCase()
   );
-  const [newGame, setNewGame] = useState(new Game("EVENS"));
+  const [newGame, setNewGame] = useState(new Game(theWord));
 
   const [enteredText, setEnteredText] = useState("");
   const [displayMessage, setDisplayMessage] = useState("");
