@@ -12973,4 +12973,4 @@ const myWordsArray: string[] = [
   "zymic",
 ];
 
-export { myWordsArray };
+export default myWordsArray;
