@@ -1,15 +1,15 @@
-import { readFileSync } from "fs";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import React, { Component, createContext, useState } from "react";
 import { KeyboardEvent } from "react";
+import { myWordsArray } from "./words";
 
 enum LetterStatus {
   Not = "#212121",
   Somewhere = "#999900",
   Correct = "#009900",
-  Floating = "#212121",
+  Floating = "#111111",
 }
 
 enum GameStatus {
@@ -27,12 +27,17 @@ class Letter {
   }
 
   decide(compareTo: string[]): void {
-    if (compareTo[this.index] == this.character) {
-      this.current = LetterStatus.Correct;
-    } else if (compareTo.includes(this.character)) {
-      this.current = LetterStatus.Somewhere;
-    } else {
-      this.current = LetterStatus.Not;
+    if (
+      this.current == LetterStatus.Floating ||
+      this.current == LetterStatus.Somewhere
+    ) {
+      if (compareTo[this.index] == this.character) {
+        this.current = LetterStatus.Correct;
+      } else if (compareTo.includes(this.character)) {
+        this.current = LetterStatus.Somewhere;
+      } else {
+        this.current = LetterStatus.Not;
+      }
     }
   }
 }
@@ -50,7 +55,20 @@ class Word {
 
   lockIt(theWord: string): boolean {
     this.lockedIn = true;
-    this.letters.forEach((l) => l.decide(theWord.split("")));
+    var theWordsLetters: string[] = theWord.split("");
+    var entryLetters: string[] = [];
+    this.letters.forEach((item) => entryLetters.push(item.character));
+    this.letters.forEach((item) => item.decide(theWordsLetters));
+
+    for (var i = 0; i < this.letters.length; i++) {
+      if (
+        this.letters[i].current == LetterStatus.Correct ||
+        this.letters[i].current == LetterStatus.Not
+      ) {
+        theWordsLetters[i] = ".";
+        this.letters.forEach((item) => item.decide(theWordsLetters));
+      }
+    }
     var check: boolean = true;
     this.letters.forEach((item) => {
       if (item.current != LetterStatus.Correct) {
@@ -93,19 +111,13 @@ class Game {
 }
 
 const Home: NextPage = () => {
-  var myText: string = "";
-
-  fetch("www.blais.gg/words.txt").then(function (response) {
-    response.text().then(function (text) {
-      myText = text;
-    });
-  });
-
-  const myArray = myText.split("/n");
-
-  const [newGame, setNewGame] = useState(new Game("STATE"));
+  const [theWord, setTheWord] = useState(
+    myWordsArray[Math.round(Math.random() * myWordsArray.length)].toUpperCase()
+  );
+  const [newGame, setNewGame] = useState(new Game("EVENS"));
 
   const [enteredText, setEnteredText] = useState("");
+  const [displayMessage, setDisplayMessage] = useState("");
 
   const BoardSetter: React.FC<{
     currentGame: Game;
@@ -162,11 +174,15 @@ const Home: NextPage = () => {
         newGame.setLetter(" ");
       }
       if (event.key == "Enter" && enteredText.length == 5) {
-        newGame.lockInCurrentWord();
-        setEnteredText("");
-        newGame.currentLetter = 0;
+        if (myWordsArray.includes(enteredText.toLowerCase())) {
+          newGame.lockInCurrentWord();
+          setEnteredText("");
+          newGame.currentLetter = 0;
+        }
       }
       setboard(<BoardSetter currentGame={newGame} />);
+    } else {
+      setDisplayMessage(" The Word Was: " + theWord);
     }
   };
 
@@ -187,9 +203,8 @@ const Home: NextPage = () => {
           </div>
           {board}
           <p className="font-extrabold text-6xl text-white">
-            {newGame.thisGame}
+            {newGame.thisGame + displayMessage}
           </p>
-          <p className="font-extrabold text-6xl text-white">{myText}</p>
         </div>
       </body>
     </html>
