@@ -6,7 +6,7 @@ import { KeyboardEvent } from "react";
 import { myWordsArray } from "./words";
 
 enum LetterStatus {
-  Not = "#212121",
+  Not = "#990000",
   Somewhere = "#999900",
   Correct = "#009900",
   Floating = "#111111",
@@ -55,20 +55,63 @@ class Word {
 
   lockIt(theWord: string): boolean {
     this.lockedIn = true;
-    var theWordsLetters: string[] = theWord.split("");
-    var entryLetters: string[] = [];
-    this.letters.forEach((item) => entryLetters.push(item.character));
-    this.letters.forEach((item) => item.decide(theWordsLetters));
+    const theWordsLetters: string[] = theWord.split("");
 
+    // set those letters that are in the right spot to true
     for (var i = 0; i < this.letters.length; i++) {
-      if (
-        this.letters[i].current == LetterStatus.Correct ||
-        this.letters[i].current == LetterStatus.Not
-      ) {
+      if (theWordsLetters[i] == this.letters[i].character) {
+        this.letters[i].current = LetterStatus.Correct;
         theWordsLetters[i] = ".";
-        this.letters.forEach((item) => item.decide(theWordsLetters));
       }
     }
+
+    // get rid of leters that are not there
+    for (var i = 0; i < this.letters.length; i++) {
+      if (
+        !theWordsLetters.includes(this.letters[i].character) &&
+        this.letters[i].current == LetterStatus.Floating
+      ) {
+        this.letters[i].current = LetterStatus.Not;
+      }
+    }
+
+    for (var i = 0; i < this.letters.length; i++) {
+      var howmanyInGuess = 0;
+      var howmanyInTheWord = 0;
+      if (
+        this.letters[i].current == LetterStatus.Floating &&
+        theWordsLetters.includes(this.letters[i].character)
+      ) {
+        //first check how many of this letter there are that are not correct
+        for (var j = 0; j < this.letters.length; j++) {
+          if (
+            this.letters[i].character == this.letters[j].character &&
+            this.letters[j].current == LetterStatus.Floating
+          ) {
+            howmanyInGuess++;
+          }
+        }
+        //find how many in word
+        for (var j = 0; j < this.letters.length; j++) {
+          if (theWordsLetters[j] == this.letters[i].character) {
+            howmanyInTheWord++;
+          }
+        }
+        if (howmanyInTheWord - howmanyInGuess >= 0) {
+          for (var j = 0; j < this.letters.length; j++) {
+            if (
+              this.letters[i].character == this.letters[j].character &&
+              this.letters[j].current == LetterStatus.Floating
+            ) {
+              this.letters[j].current = LetterStatus.Somewhere;
+            }
+          }
+        } else {
+          while (howmanyInTheWord - howmanyInGuess >= 0) {}
+        }
+      }
+    }
+
     var check: boolean = true;
     this.letters.forEach((item) => {
       if (item.current != LetterStatus.Correct) {
