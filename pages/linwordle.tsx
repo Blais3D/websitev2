@@ -3,7 +3,7 @@ import Head from "next/head";
 import Image from "next/image";
 import React, { Component, createContext, useState } from "react";
 import { KeyboardEvent } from "react";
-import { myWordsArray } from "./generateWord";
+import { myWordsArray } from "../func/generateWord";
 
 enum LetterStatus {
   Not = "#990000",
@@ -203,7 +203,7 @@ const Home: NextPage = () => {
       }
       setboard(<BoardSetter currentGame={newGame} />);
     }
-    if (newGame.thisGame == GameStatus.Won) {
+    if (newGame.thisGame != GameStatus.StillGoing) {
       setDisplayMessage(" The Word Was: " + theWord);
     }
   };
