@@ -12,7 +12,8 @@ import React, {
 } from "react";
 import { KeyboardEvent } from "react";
 import { myWordsArray } from "../func/generateWord";
-import { MdOutlineBackspace } from "react-icons/md";
+import { MdOutlineBackspace, MdSecurityUpdateWarning } from "react-icons/md";
+import { type } from "os";
 
 enum LetterStatus {
   Not = "#990000",
@@ -55,6 +56,7 @@ class Word {
   letters: Letter[] = new Array<Letter>(5);
   lockedIn: boolean = false;
   currentStep: number = 0;
+  keyLetterArray: KeyLetter[] = new Array<KeyLetter>();
 
   constructor() {
     for (var i = 0; i < this.letters.length; i++) {
@@ -70,6 +72,9 @@ class Word {
     for (var i = 0; i < this.letters.length; i++) {
       if (theWordsLetters[i] == this.letters[i].character) {
         this.letters[i].current = LetterStatus.Correct;
+        this.keyLetterArray.push(
+          new KeyLetter(this.letters[i].current, LetterStatus.Correct)
+        );
         theWordsLetters[i] = ".";
       }
     }
@@ -81,6 +86,9 @@ class Word {
         this.letters[i].current == LetterStatus.Floating
       ) {
         this.letters[i].current = LetterStatus.Not;
+        this.keyLetterArray.push(
+          new KeyLetter(this.letters[i].current, LetterStatus.Not)
+        );
       }
     }
 
@@ -88,10 +96,16 @@ class Word {
       if (this.letters[i].current == LetterStatus.Floating) {
         if (theWordsLetters.includes(this.letters[i].character)) {
           this.letters[i].current = LetterStatus.Somewhere;
+          this.keyLetterArray.push(
+            new KeyLetter(this.letters[i].current, LetterStatus.Somewhere)
+          );
           theWordsLetters[theWordsLetters.indexOf(this.letters[i].character)] =
             ".";
         } else {
           this.letters[i].current = LetterStatus.Not;
+          this.keyLetterArray.push(
+            new KeyLetter(this.letters[i].current, LetterStatus.Not)
+          );
         }
       }
     }
@@ -106,6 +120,19 @@ class Word {
   }
 }
 
+class KeyLetter {
+  letter: string;
+  status: LetterStatus = LetterStatus.Floating;
+
+  constructor(letter: string, status: LetterStatus) {
+    this.letter = letter;
+  }
+
+  statusSetter(status: LetterStatus) {
+    this.status = status;
+  }
+}
+
 class Game {
   words: Word[] = new Array<Word>(6);
   thisGame: GameStatus = GameStatus.StillGoing;
@@ -113,12 +140,44 @@ class Game {
   currentStep: number = 0;
   currentLetter: number = 0;
   turns: number = 5;
+  letterArray: string[] = [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z",
+  ];
+  keyLetterArray: LetterStatus[] = new Array<LetterStatus>();
 
   constructor(theWord: string) {
     for (var i = 0; i < this.words.length; i++) {
       this.words[i] = new Word();
     }
     this.theWord = theWord;
+    for (var i = 0; i < this.letterArray.length; i++) {
+      this.keyLetterArray.push(LetterStatus.Floating);
+    }
   }
 
   lockInCurrentWord(): void {
@@ -129,7 +188,16 @@ class Game {
     } else {
       this.thisGame = GameStatus.StillGoing;
     }
+    this.updateKeyLetters();
     this.currentStep = this.currentStep + 1;
+  }
+
+  updateKeyLetters() {
+    let updated: KeyLetter[] = this.words[this.currentStep].keyLetterArray;
+    for (var i = 0; i < updated.length; i++) {
+      this.keyLetterArray[this.letterArray.indexOf(updated[i].letter)] =
+        updated[i].status;
+    }
   }
 
   setLetter(key: string): void {
@@ -192,29 +260,7 @@ const Home: NextPage = () => {
   };
 
   const keyHandler = (event: React.KeyboardEvent<HTMLElement>) => {
-    if (newGame.thisGame == GameStatus.StillGoing) {
-      if (enteredText.length < 5 && event.key.length == 1) {
-        setEnteredText(enteredText + event.key);
-        newGame.setLetter(event.key.toUpperCase());
-        newGame.currentLetter++;
-      }
-      if (event.key == "Backspace" && enteredText.length > 0) {
-        setEnteredText(enteredText.substring(0, enteredText.length - 1));
-        newGame.currentLetter--;
-        newGame.setLetter(" ");
-      }
-      if (event.key == "Enter" && enteredText.length == 5) {
-        if (myWordsArray.includes(enteredText.toLowerCase())) {
-          newGame.lockInCurrentWord();
-          setEnteredText("");
-          newGame.currentLetter = 0;
-        }
-      }
-      setboard(<BoardSetter currentGame={newGame} />);
-    }
-    if (newGame.thisGame != GameStatus.StillGoing) {
-      setDisplayMessage(" The Word Was: " + theWord);
-    }
+    keyPresser(event.key);
   };
 
   const [board, setboard] = useState(<BoardSetter currentGame={newGame} />);
@@ -225,7 +271,10 @@ const Home: NextPage = () => {
 
   function keyPresser(keyString: string) {
     if (newGame.thisGame == GameStatus.StillGoing) {
-      if (enteredText.length < 5 && keyString.length == 1) {
+      if (
+        enteredText.length < 5 &&
+        newGame.letterArray.includes(keyString.toUpperCase())
+      ) {
         setEnteredText(enteredText + keyString);
         newGame.setLetter(keyString.toUpperCase());
         newGame.currentLetter++;
@@ -233,7 +282,7 @@ const Home: NextPage = () => {
       if (keyString == "Backspace" && enteredText.length > 0) {
         setEnteredText(enteredText.substring(0, enteredText.length - 1));
         newGame.currentLetter--;
-        newGame.setLetter(" ");
+        newGame.setLetter("");
       }
       if (keyString == "Enter" && enteredText.length == 5) {
         if (myWordsArray.includes(enteredText.toLowerCase())) {
@@ -242,6 +291,7 @@ const Home: NextPage = () => {
           newGame.currentLetter = 0;
         }
       }
+      //updateAll();
       setboard(<BoardSetter currentGame={newGame} />);
     }
     if (newGame.thisGame != GameStatus.StillGoing) {
@@ -252,10 +302,15 @@ const Home: NextPage = () => {
   const KeyOnKeyboard: React.FC<{
     currentLetter: string;
   }> = (props) => {
+    const color: string =
+      newGame.keyLetterArray[newGame.letterArray.indexOf(props.currentLetter)];
     return (
-      <div className=" w-10 h-14 bg-[#212121] rounded flex place-content-center place-items-center">
+      <div
+        className=" w-10 h-14 bg-[#212121] rounded flex place-content-center place-items-center"
+        style={{ background: color }}
+      >
         <button
-          className=" text-base text-white text-center"
+          className="w-10 h-14 text-base text-white text-center"
           onClick={() => keyPresser(props.currentLetter)}
         >
           {props.currentLetter}
@@ -265,19 +320,85 @@ const Home: NextPage = () => {
   };
 
   const KeyOnKeyboardEvent: React.FC<{
-    currentLetter: any;
+    text: any;
+    word: string;
   }> = (props) => {
     return (
       <div className=" w-16 h-14 bg-[#212121] rounded-md flex place-content-center place-items-center">
         <button
-          className=" text-base text-white text-center"
-          onClick={() => keyPresser(props.currentLetter)}
+          className=" w-16 h-14 text-base text-white text-center flex place-content-center place-items-center"
+          onClick={() => keyPresser(props.word)}
         >
-          {props.currentLetter}
+          {props.text}
         </button>
       </div>
     );
   };
+
+  const [keyA, setkeyA] = useState(<KeyOnKeyboard currentLetter={"A"} />);
+  const [keyB, setkeyB] = useState(<KeyOnKeyboard currentLetter={"B"} />);
+  const [keyC, setkeyC] = useState(<KeyOnKeyboard currentLetter={"C"} />);
+  const [keyD, setkeyD] = useState(<KeyOnKeyboard currentLetter={"D"} />);
+  const [keyE, setkeyE] = useState(<KeyOnKeyboard currentLetter={"E"} />);
+  const [keyF, setkeyF] = useState(<KeyOnKeyboard currentLetter={"F"} />);
+  const [keyG, setkeyG] = useState(<KeyOnKeyboard currentLetter={"G"} />);
+  const [keyH, setkeyH] = useState(<KeyOnKeyboard currentLetter={"H"} />);
+  const [keyI, setkeyI] = useState(<KeyOnKeyboard currentLetter={"I"} />);
+  const [keyJ, setkeyJ] = useState(<KeyOnKeyboard currentLetter={"J"} />);
+  const [keyK, setkeyK] = useState(<KeyOnKeyboard currentLetter={"K"} />);
+  const [keyL, setkeyL] = useState(<KeyOnKeyboard currentLetter={"L"} />);
+  const [keyM, setkeyM] = useState(<KeyOnKeyboard currentLetter={"M"} />);
+  const [keyN, setkeyN] = useState(<KeyOnKeyboard currentLetter={"N"} />);
+  const [keyO, setkeyO] = useState(<KeyOnKeyboard currentLetter={"O"} />);
+  const [keyP, setkeyP] = useState(<KeyOnKeyboard currentLetter={"P"} />);
+  const [keyQ, setkeyQ] = useState(<KeyOnKeyboard currentLetter={"Q"} />);
+  const [keyR, setkeyR] = useState(<KeyOnKeyboard currentLetter={"R"} />);
+  const [keyS, setkeyS] = useState(<KeyOnKeyboard currentLetter={"S"} />);
+  const [keyT, setkeyT] = useState(<KeyOnKeyboard currentLetter={"T"} />);
+  const [keyU, setkeyU] = useState(<KeyOnKeyboard currentLetter={"U"} />);
+  const [keyV, setkeyV] = useState(<KeyOnKeyboard currentLetter={"V"} />);
+  const [keyW, setkeyW] = useState(<KeyOnKeyboard currentLetter={"W"} />);
+  const [keyX, setkeyX] = useState(<KeyOnKeyboard currentLetter={"X"} />);
+  const [keyY, setkeyY] = useState(<KeyOnKeyboard currentLetter={"Y"} />);
+  const [keyZ, setkeyZ] = useState(<KeyOnKeyboard currentLetter={"Z"} />);
+  const [keyEnter, setkeyEnter] = useState(
+    <KeyOnKeyboardEvent text={"Enter"} word={"Enter"} />
+  );
+  const [keyDelete, setkeyDelete] = useState(
+    <KeyOnKeyboardEvent
+      text={<MdOutlineBackspace size={30} />}
+      word={"Backspace"}
+    />
+  );
+
+  function updateAll() {
+    setkeyA(<KeyOnKeyboard currentLetter={"A"} />);
+    setkeyB(<KeyOnKeyboard currentLetter={"B"} />);
+    setkeyC(<KeyOnKeyboard currentLetter={"C"} />);
+    setkeyD(<KeyOnKeyboard currentLetter={"D"} />);
+    setkeyE(<KeyOnKeyboard currentLetter={"E"} />);
+    setkeyF(<KeyOnKeyboard currentLetter={"F"} />);
+    setkeyG(<KeyOnKeyboard currentLetter={"G"} />);
+    setkeyH(<KeyOnKeyboard currentLetter={"H"} />);
+    setkeyI(<KeyOnKeyboard currentLetter={"I"} />);
+    setkeyJ(<KeyOnKeyboard currentLetter={"J"} />);
+    setkeyK(<KeyOnKeyboard currentLetter={"K"} />);
+    setkeyL(<KeyOnKeyboard currentLetter={"L"} />);
+    setkeyM(<KeyOnKeyboard currentLetter={"M"} />);
+    setkeyN(<KeyOnKeyboard currentLetter={"N"} />);
+    setkeyO(<KeyOnKeyboard currentLetter={"O"} />);
+    setkeyP(<KeyOnKeyboard currentLetter={"P"} />);
+    setkeyQ(<KeyOnKeyboard currentLetter={"Q"} />);
+    setkeyR(<KeyOnKeyboard currentLetter={"R"} />);
+    setkeyS(<KeyOnKeyboard currentLetter={"S"} />);
+    setkeyT(<KeyOnKeyboard currentLetter={"T"} />);
+    setkeyU(<KeyOnKeyboard currentLetter={"U"} />);
+    setkeyV(<KeyOnKeyboard currentLetter={"V"} />);
+    setkeyW(<KeyOnKeyboard currentLetter={"W"} />);
+    setkeyX(<KeyOnKeyboard currentLetter={"X"} />);
+    setkeyY(<KeyOnKeyboard currentLetter={"Y"} />);
+    setkeyZ(<KeyOnKeyboard currentLetter={"Z"} />);
+  }
 
   return (
     <html onKeyUpCapture={keyHandler} tabIndex={0}>
@@ -289,40 +410,38 @@ const Home: NextPage = () => {
           <div className=" space-y-2 p-2">
             {board}
             <div className=" place-content-center place-items-center flex space-x-2">
-              <KeyOnKeyboard currentLetter={"Q"} />
-              <KeyOnKeyboard currentLetter={"W"} />
-              <KeyOnKeyboard currentLetter={"E"} />
-              <KeyOnKeyboard currentLetter={"R"} />
-              <KeyOnKeyboard currentLetter={"T"} />
-              <KeyOnKeyboard currentLetter={"Y"} />
-              <KeyOnKeyboard currentLetter={"U"} />
-              <KeyOnKeyboard currentLetter={"I"} />
-              <KeyOnKeyboard currentLetter={"O"} />
-              <KeyOnKeyboard currentLetter={"P"} />
+              {keyQ}
+              {keyW}
+              {keyE}
+              {keyR}
+              {keyT}
+              {keyY}
+              {keyU}
+              {keyI}
+              {keyO}
+              {keyP}
             </div>
             <div className=" place-content-center place-items-center flex space-x-2">
-              <KeyOnKeyboard currentLetter={"A"} />
-              <KeyOnKeyboard currentLetter={"S"} />
-              <KeyOnKeyboard currentLetter={"D"} />
-              <KeyOnKeyboard currentLetter={"F"} />
-              <KeyOnKeyboard currentLetter={"G"} />
-              <KeyOnKeyboard currentLetter={"H"} />
-              <KeyOnKeyboard currentLetter={"J"} />
-              <KeyOnKeyboard currentLetter={"K"} />
-              <KeyOnKeyboard currentLetter={"L"} />
+              {keyA}
+              {keyS}
+              {keyD}
+              {keyF}
+              {keyG}
+              {keyH}
+              {keyJ}
+              {keyK}
+              {keyL}
             </div>
             <div className=" place-content-center place-items-center flex space-x-2">
-              <KeyOnKeyboardEvent currentLetter={"Enter"} />
-              <KeyOnKeyboard currentLetter={"Z"} />
-              <KeyOnKeyboard currentLetter={"X"} />
-              <KeyOnKeyboard currentLetter={"C"} />
-              <KeyOnKeyboard currentLetter={"V"} />
-              <KeyOnKeyboard currentLetter={"B"} />
-              <KeyOnKeyboard currentLetter={"N"} />
-              <KeyOnKeyboard currentLetter={"M"} />
-              <KeyOnKeyboardEvent
-                currentLetter={<MdOutlineBackspace size={30} />}
-              ></KeyOnKeyboardEvent>
+              {keyEnter}
+              {keyZ}
+              {keyX}
+              {keyC}
+              {keyV}
+              {keyB}
+              {keyN}
+              {keyM}
+              {keyDelete}
             </div>
             <button
               onClick={refreshPage}
