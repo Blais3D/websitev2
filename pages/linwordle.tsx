@@ -1,7 +1,15 @@
+import { LookupAllOptions } from "dns";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import React, { Component, createContext, useState } from "react";
+import React, {
+  AllHTMLAttributes,
+  Component,
+  createContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { KeyboardEvent } from "react";
 import { myWordsArray } from "../func/generateWord";
 
@@ -182,7 +190,7 @@ const Home: NextPage = () => {
     );
   };
 
-  const keyHandler = (event: React.KeyboardEvent<HTMLDivElement>) => {
+  const keyHandler = (event: React.KeyboardEvent<HTMLElement>) => {
     if (newGame.thisGame == GameStatus.StillGoing) {
       if (enteredText.length < 5 && event.key.length == 1) {
         setEnteredText(enteredText + event.key);
@@ -214,20 +222,108 @@ const Home: NextPage = () => {
     window.location.reload();
   }
 
-  return (
-    <html>
-      <body className=" overflow-hidden h-screen w-screen">
-        <div
-          className=" bg-black h-[100%] w-[100%] text-center"
-          tabIndex={0}
-          onKeyUp={keyHandler}
+  function keyPresser(keyString: string) {
+    if (newGame.thisGame == GameStatus.StillGoing) {
+      if (enteredText.length < 5 && keyString.length == 1) {
+        setEnteredText(enteredText + keyString);
+        newGame.setLetter(keyString.toUpperCase());
+        newGame.currentLetter++;
+      }
+      if (keyString == "Backspace" && enteredText.length > 0) {
+        setEnteredText(enteredText.substring(0, enteredText.length - 1));
+        newGame.currentLetter--;
+        newGame.setLetter(" ");
+      }
+      if (keyString == "Enter" && enteredText.length == 5) {
+        if (myWordsArray.includes(enteredText.toLowerCase())) {
+          newGame.lockInCurrentWord();
+          setEnteredText("");
+          newGame.currentLetter = 0;
+        }
+      }
+      setboard(<BoardSetter currentGame={newGame} />);
+    }
+    if (newGame.thisGame != GameStatus.StillGoing) {
+      setDisplayMessage(" The Word Was: " + theWord);
+    }
+  }
+
+  const KeyOnKeyboard: React.FC<{
+    currentLetter: string;
+  }> = (props) => {
+    return (
+      <div className=" h-14 w-10 bg-[#212121] rounded flex place-content-center place-items-center">
+        <button
+          className=" text-xl text-white text-center"
+          onClick={() => keyPresser(props.currentLetter)}
         >
+          {props.currentLetter}
+        </button>
+      </div>
+    );
+  };
+
+  const KeyOnKeyboardEvent: React.FC<{
+    currentLetter: string;
+  }> = (props) => {
+    return (
+      <div className=" h-14 w-28 bg-[#212121] rounded-lg flex place-content-center place-items-center">
+        <button
+          className=" text-xl text-white text-center"
+          onClick={() => keyPresser(props.currentLetter)}
+        >
+          {props.currentLetter}
+        </button>
+      </div>
+    );
+  };
+
+  return (
+    <html onKeyUpCapture={keyHandler} tabIndex={0}>
+      <body className=" overflow-hidden h-screen w-screen">
+        <div className=" bg-black h-[100%] w-[100%] text-center">
           <div>
             <p className="font-extrabold text-6xl text-white">
               Welcome to LinWordle
             </p>
           </div>
-          {board}
+          <div className=" space-y-2">
+            {board}
+            <div className=" place-content-center place-items-center flex space-x-2">
+              <KeyOnKeyboard currentLetter={"Q"} />
+              <KeyOnKeyboard currentLetter={"W"} />
+              <KeyOnKeyboard currentLetter={"E"} />
+              <KeyOnKeyboard currentLetter={"R"} />
+              <KeyOnKeyboard currentLetter={"T"} />
+              <KeyOnKeyboard currentLetter={"Y"} />
+              <KeyOnKeyboard currentLetter={"U"} />
+              <KeyOnKeyboard currentLetter={"I"} />
+              <KeyOnKeyboard currentLetter={"O"} />
+              <KeyOnKeyboard currentLetter={"P"} />
+            </div>
+            <div className=" place-content-center place-items-center flex space-x-2">
+              <KeyOnKeyboard currentLetter={"A"} />
+              <KeyOnKeyboard currentLetter={"S"} />
+              <KeyOnKeyboard currentLetter={"D"} />
+              <KeyOnKeyboard currentLetter={"F"} />
+              <KeyOnKeyboard currentLetter={"G"} />
+              <KeyOnKeyboard currentLetter={"H"} />
+              <KeyOnKeyboard currentLetter={"J"} />
+              <KeyOnKeyboard currentLetter={"K"} />
+              <KeyOnKeyboard currentLetter={"L"} />
+            </div>
+            <div className=" place-content-center place-items-center flex space-x-2">
+              <KeyOnKeyboardEvent currentLetter={"Enter"} />
+              <KeyOnKeyboard currentLetter={"Z"} />
+              <KeyOnKeyboard currentLetter={"X"} />
+              <KeyOnKeyboard currentLetter={"C"} />
+              <KeyOnKeyboard currentLetter={"V"} />
+              <KeyOnKeyboard currentLetter={"B"} />
+              <KeyOnKeyboard currentLetter={"N"} />
+              <KeyOnKeyboard currentLetter={"M"} />
+              <KeyOnKeyboardEvent currentLetter={"Backspace"} />
+            </div>
+          </div>
           <p className="font-extrabold text-6xl text-white">
             {newGame.thisGame + displayMessage}
           </p>
