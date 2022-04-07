@@ -12,6 +12,7 @@ import React, {
 } from "react";
 import { KeyboardEvent } from "react";
 import { myWordsArray } from "../func/generateWord";
+import { MdOutlineBackspace } from "react-icons/md";
 
 enum LetterStatus {
   Not = "#990000",
@@ -182,7 +183,7 @@ const Home: NextPage = () => {
     const color: string = props.currentLetter.current;
     return (
       <div
-        className="w-[50px] h-[50px] place-content-center place-items-center flex transition-colors duration-1000"
+        className=" w-14 h-14 place-content-center place-items-center flex transition-colors duration-1000"
         style={{ background: color }}
       >
         <p className="text-white text-2xl">{props.currentLetter.character}</p>
@@ -252,9 +253,9 @@ const Home: NextPage = () => {
     currentLetter: string;
   }> = (props) => {
     return (
-      <div className=" h-14 w-10 bg-[#212121] rounded flex place-content-center place-items-center">
+      <div className=" w-10 h-14 bg-[#212121] rounded flex place-content-center place-items-center">
         <button
-          className=" text-xl text-white text-center"
+          className=" text-base text-white text-center"
           onClick={() => keyPresser(props.currentLetter)}
         >
           {props.currentLetter}
@@ -264,12 +265,12 @@ const Home: NextPage = () => {
   };
 
   const KeyOnKeyboardEvent: React.FC<{
-    currentLetter: string;
+    currentLetter: any;
   }> = (props) => {
     return (
-      <div className=" h-14 w-28 bg-[#212121] rounded-lg flex place-content-center place-items-center">
+      <div className=" w-16 h-14 bg-[#212121] rounded-md flex place-content-center place-items-center">
         <button
-          className=" text-xl text-white text-center"
+          className=" text-base text-white text-center"
           onClick={() => keyPresser(props.currentLetter)}
         >
           {props.currentLetter}
@@ -282,12 +283,10 @@ const Home: NextPage = () => {
     <html onKeyUpCapture={keyHandler} tabIndex={0}>
       <body className=" overflow-hidden h-screen w-screen">
         <div className=" bg-black h-[100%] w-[100%] text-center">
-          <div>
-            <p className="font-extrabold text-6xl text-white">
-              Welcome to LinWordle
-            </p>
+          <div className=" h-auto w-[100%] outline outline-1 outline-white">
+            <p className="font-extrabold text-3xl text-white">LinWordle</p>
           </div>
-          <div className=" space-y-2">
+          <div className=" space-y-2 p-2">
             {board}
             <div className=" place-content-center place-items-center flex space-x-2">
               <KeyOnKeyboard currentLetter={"Q"} />
@@ -321,13 +320,10 @@ const Home: NextPage = () => {
               <KeyOnKeyboard currentLetter={"B"} />
               <KeyOnKeyboard currentLetter={"N"} />
               <KeyOnKeyboard currentLetter={"M"} />
-              <KeyOnKeyboardEvent currentLetter={"Backspace"} />
+              <KeyOnKeyboardEvent
+                currentLetter={<MdOutlineBackspace size={30} />}
+              ></KeyOnKeyboardEvent>
             </div>
-          </div>
-          <p className="font-extrabold text-6xl text-white">
-            {newGame.thisGame + displayMessage}
-          </p>
-          <div className="p-[2%]">
             <button
               onClick={refreshPage}
               className=" bg-[#212121] w-[10%] h-10 text-lg text-white transition hover:bg-[#555555] rounded-lg"
